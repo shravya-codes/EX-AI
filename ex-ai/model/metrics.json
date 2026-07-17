@@ -1,0 +1,56 @@
+{
+  "accuracy": 95.0,
+  "total_users": 400,
+  "normal_users": 319,
+  "suspicious_users": 81,
+  "missing_values_found": 0,
+  "classification_report": {
+    "0": {
+      "precision": 0.9393939393939394,
+      "recall": 1.0,
+      "f1-score": 0.96875,
+      "support": 62.0
+    },
+    "1": {
+      "precision": 1.0,
+      "recall": 0.7777777777777778,
+      "f1-score": 0.875,
+      "support": 18.0
+    },
+    "accuracy": 0.95,
+    "macro avg": {
+      "precision": 0.9696969696969697,
+      "recall": 0.8888888888888888,
+      "f1-score": 0.921875,
+      "support": 80.0
+    },
+    "weighted avg": {
+      "precision": 0.9530303030303031,
+      "recall": 0.95,
+      "f1-score": 0.94765625,
+      "support": 80.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      62,
+      0
+    ],
+    [
+      4,
+      14
+    ]
+  ],
+  "feature_importance": {
+    "pages_accessed": 0.0887,
+    "session_duration": 0.0671,
+    "login_attempts": 0.0296,
+    "failed_logins": 0.0183
+  },
+  "features": [
+    "login_attempts",
+    "session_duration",
+    "pages_accessed",
+    "failed_logins"
+  ]
+}

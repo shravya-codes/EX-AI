@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Live Analyzer · EX-AI{% endblock %}
+{% block crumb %}Security Operations / Live Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Interactive Prediction System</span>
+  <h1>Analyze a User Session</h1>
+  <p>Enter behavioral activity values for a session and the trained Random Forest model
+     will classify it as Normal or Suspicious in real time, with a deviation score and risk level.</p>
+</div>
+
+<div class="analyzer-grid">
+  <div class="panel">
+    <div class="panel-title">Session Parameters</div>
+
+    <div class="form-field">
+      <label>login_attempts <span class="val" id="v-login_attempts">3</span></label>
+      <input type="range" id="login_attempts" min="0" max="25" value="3" step="1">
+    </div>
+    <div class="form-field">
+      <label>session_duration (minutes) <span class="val" id="v-session_duration">20</span></label>
+      <input type="range" id="session_duration" min="1" max="260" value="20" step="1">
+    </div>
+    <div class="form-field">
+      <label>pages_accessed <span class="val" id="v-pages_accessed">15</span></label>
+      <input type="range" id="pages_accessed" min="1" max="220" value="15" step="1">
+    </div>
+    <div class="form-field">
+      <label>failed_logins <span class="val" id="v-failed_logins">0</span></label>
+      <input type="range" id="failed_logins" min="0" max="20" value="0" step="1">
+    </div>
+
+    <button class="btn-primary" id="analyze-btn">RUN THREAT ANALYSIS</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Analysis Result</div>
+    <div id="result-area">
+      <div class="result-placeholder">Adjust the parameters and run analysis<br>to see the model's live verdict.</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fields = ["login_attempts", "session_duration", "pages_accessed", "failed_logins"];
+fields.forEach(f => {
+  const input = document.getElementById(f);
+  const val = document.getElementById('v-' + f);
+  input.addEventListener('input', () => val.textContent = input.value);
+});
+
+document.getElementById('analyze-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('analyze-btn');
+  btn.textContent = 'ANALYZING...';
+  btn.disabled = true;
+
+  const payload = {};
+  fields.forEach(f => payload[f] = document.getElementById(f).value);
+
+  try {
+    const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    renderResult(data);
+  } catch (e) {
+    document.getElementById('result-area').innerHTML =
+      '<div class="result-placeholder">Error reaching the model. Check the Flask server console.</div>';
+  }
+  btn.textContent = 'RUN THREAT ANALYSIS';
+  btn.disabled = false;
+});
+
+function renderResult(data) {
+  const isSus = data.prediction_code === 1;
+  const verdictClass = isSus ? 'suspicious' : 'normal';
+  const riskBadge = data.risk_level === 'High Risk' ? 'badge-high'
+                   : data.risk_level === 'Medium Risk' ? 'badge-medium' : 'badge-low';
+
+  document.getElementById('result-area').innerHTML = `
+    <div class="result-card">
+      <div class="result-status">Classification Result</div>
+      <div class="result-verdict ${verdictClass}">${data.prediction.toUpperCase()}</div>
+      <span class="badge ${riskBadge}">● ${data.risk_level}</span>
+      <div class="result-meta">
+        <div class="m"><div class="n">${data.confidence}%</div><div class="l">Confidence</div></div>
+        <div class="m"><div class="n">${data.deviation_score}%</div><div class="l">Deviation Score</div></div>
+      </div>
+    </div>
+  `;
+}
+</script>
+{% endblock %}

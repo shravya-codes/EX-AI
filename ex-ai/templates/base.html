@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}EX-AI{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">&gt;_</span>
+      <div class="brand-text">
+        <span class="brand-name">EX<span class="accent">-AI</span></span>
+        <span class="brand-sub">Behavior Threat Detection</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link {{ 'active' if request.path == '/' else '' }}">
+        <span class="nav-icon">◧</span> Dashboard
+      </a>
+      <a href="{{ url_for('analyzer') }}" class="nav-link {{ 'active' if request.path == '/analyzer' else '' }}">
+        <span class="nav-icon">▣</span> Live Analyzer
+      </a>
+      <a href="{{ url_for('analytics') }}" class="nav-link {{ 'active' if request.path == '/analytics' else '' }}">
+        <span class="nav-icon">▤</span> Model Analytics
+      </a>
+      <a href="{{ url_for('about') }}" class="nav-link {{ 'active' if request.path == '/about' else '' }}">
+        <span class="nav-icon">▥</span> About Project
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-pill">
+        <span class="dot"></span> MODEL ONLINE
+      </div>
+      <div class="footer-meta">Random Forest · Explainable AI<br>BCA Final Year Project</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="crumb">{% block crumb %}Security Operations{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <span id="live-clock" class="live-clock">--:--:--</span>
+        <span class="scan-badge"><span class="pulse"></span> SCANNING</span>
+      </div>
+    </header>
+
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · EX-AI{% endblock %}
+{% block crumb %}Security Operations / Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Explainable AI · Random Forest Classifier</span>
+  <h1>User Behavior Threat Detection</h1>
+  <p>Real-time monitoring dashboard analyzing login attempts, session duration, page access
+     and failed logins to flag suspicious user behavior before it becomes a breach.</p>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card signal">
+    <div class="label">Model Accuracy</div>
+    <div class="value">{{ metrics.accuracy }}%</div>
+    <div class="sub">Random Forest · 200 estimators</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Users Analyzed</div>
+    <div class="value">{{ metrics.total_users }}</div>
+    <div class="sub">Behavioral sessions scored</div>
+  </div>
+  <div class="stat-card info">
+    <div class="label">Normal Users</div>
+    <div class="value">{{ metrics.normal_users }}</div>
+    <div class="sub">{{ (metrics.normal_users / metrics.total_users * 100) | round(1) }}% of traffic</div>
+  </div>
+  <div class="stat-card alert">
+    <div class="label">Suspicious Users</div>
+    <div class="value">{{ metrics.suspicious_users }}</div>
+    <div class="sub">{{ (metrics.suspicious_users / metrics.total_users * 100) | round(1) }}% flagged</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-title">Live Threat Feed</div>
+    <div class="terminal">
+      <div class="terminal-head"><span></span><span></span><span></span></div>
+      <div class="terminal-log" id="terminal-log"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Risk Distribution</div>
+    <div class="risk-breakdown" id="risk-breakdown">
+      <div class="risk-row">
+        <span class="risk-label">Low Risk</span>
+        <div class="risk-bar-track"><div class="risk-bar-fill" style="width:{{ risk_dist['Low Risk'] }}%; background:var(--signal);"></div></div>
+        <span class="risk-val">{{ risk_dist['Low Risk'] }}%</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">Medium Risk</span>
+        <div class="risk-bar-track"><div class="risk-bar-fill" style="width:{{ risk_dist['Medium Risk'] }}%; background:var(--amber);"></div></div>
+        <span class="risk-val">{{ risk_dist['Medium Risk'] }}%</span>
+      </div>
+      <div class="risk-row">
+        <span class="risk-label">High Risk</span>
+        <div class="risk-bar-track"><div class="risk-bar-fill" style="width:{{ risk_dist['High Risk'] }}%; background:var(--alert);"></div></div>
+        <span class="risk-val">{{ risk_dist['High Risk'] }}%</span>
+      </div>
+    </div>
+    <div class="panel-title" style="margin-top:24px;">Top Behavioral Features</div>
+    <div class="risk-breakdown">
+      {% for feat, imp in metrics.feature_importance.items() %}
+      <div class="risk-row">
+        <span class="risk-label">{{ feat }}</span>
+        <div class="risk-bar-track"><div class="risk-bar-fill" style="width:{{ (imp / (metrics.feature_importance.values() | max) * 100) | round(0) }}%; background:var(--info);"></div></div>
+        <span class="risk-val">{{ imp }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Top 10 Suspicious Users · Ranked by Deviation Score</div>
+  <table class="data-table">
+    <thead>
+      <tr><th>User ID</th><th>Predicted Label</th><th>Deviation Score</th><th>Risk Level</th></tr>
+    </thead>
+    <tbody>
+      {% for u in top_suspicious %}
+      <tr>
+        <td>#{{ '%04d' | format(u.user_id) }}</td>
+        <td>Suspicious</td>
+        <td>{{ u.deviation_score }}%</td>
+        <td>
+          {% if u.risk_level == 'High Risk' %}<span class="badge badge-high">● High Risk</span>
+          {% elif u.risk_level == 'Medium Risk' %}<span class="badge badge-medium">● Medium Risk</span>
+          {% else %}<span class="badge badge-low">● Low Risk</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const log = document.getElementById('terminal-log');
+const MAX_LINES = 9;
+
+function pad(n) { return n.toString().padStart(2,'0'); }
+
+function addLine(user) {
+  const now = new Date();
+  const ts = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const isSus = user.predicted_label === 1;
+  const tagClass = isSus ? 'tag-suspicious' : 'tag-normal';
+  const tagText = isSus ? 'SUSPICIOUS' : 'NORMAL   ';
+  const line = document.createElement('div');
+  line.className = 'terminal-line';
+  line.innerHTML = `<span class="ts">[${ts}]</span> user#${String(user.user_id).padStart(4,'0')} ` +
+    `login=${user.login_attempts} sess=${user.session_duration}m pages=${user.pages_accessed} failed=${user.failed_logins} ` +
+    `&rarr; <span class="${tagClass}">${tagText}</span> <span style="color:#4c5561">dev=${user.deviation_score}%</span>`;
+  log.appendChild(line);
+  while (log.children.length > MAX_LINES) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function pollFeed() {
+  try {
+    const res = await fetch('/api/live-feed');
+    const users = await res.json();
+    users.forEach((u, i) => setTimeout(() => addLine(u), i * 500));
+  } catch (e) { /* silent */ }
+}
+
+pollFeed();
+setInterval(pollFeed, 6000);
+</script>
+{% endblock %}

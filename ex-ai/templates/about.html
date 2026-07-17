@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}About · EX-AI{% endblock %}
+{% block crumb %}Security Operations / About{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Project Summary</span>
+  <h1>Explainable AI-Driven User Behavior Threat Detection</h1>
+  <p>Final year BCA project — Department of Computer Applications.</p>
+</div>
+
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-title">Objective</div>
+    <ul class="about-list">
+      <li>Detect suspicious user behavior using Machine Learning.</li>
+      <li>Analyze login attempts, session duration, pages accessed, and failed logins.</li>
+      <li>Classify users as Normal or Suspicious using a Random Forest Classifier.</li>
+      <li>Generate deviation scores and assign Low / Medium / High risk levels.</li>
+      <li>Use Explainable AI to interpret why the model made each prediction.</li>
+      <li>Visualize threat patterns through heatmaps, scatter plots, and a live dashboard.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">How It Works</div>
+    <ul class="about-list">
+      <li><b>1. Preprocessing</b> — clean data, check duplicates/missing values.</li>
+      <li><b>2. Feature Scaling</b> — StandardScaler normalizes the 4 behavioral features.</li>
+      <li><b>3. Training</b> — Random Forest (200 trees) learns Normal vs Suspicious patterns.</li>
+      <li><b>4. Evaluation</b> — confusion matrix, precision/recall/F1 on a held-out test set.</li>
+      <li><b>5. Explainability</b> — permutation importance shows which features drive each decision.</li>
+      <li><b>6. Deployment</b> — Flask web app serves live predictions through this dashboard.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Tech Stack</div>
+  <div class="tech-pills">
+    <span class="tech-pill">Python</span>
+    <span class="tech-pill">scikit-learn</span>
+    <span class="tech-pill">Random Forest Classifier</span>
+    <span class="tech-pill">pandas / NumPy</span>
+    <span class="tech-pill">Matplotlib / Seaborn</span>
+    <span class="tech-pill">Permutation Importance (Explainable AI)</span>
+    <span class="tech-pill">Flask</span>
+    <span class="tech-pill">HTML / CSS / JavaScript</span>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Why Random Forest?</div>
+  <p style="font-size:14px;color:var(--text);line-height:1.7;">
+    Random Forest builds many decision trees on random subsets of the data and averages their
+    output, which reduces overfitting and handles the mixed-scale behavioral features
+    (login counts, minutes, page counts) reliably without heavy tuning — making it a strong,
+    explainable baseline for a first cybersecurity ML classifier.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Model Analytics · EX-AI{% endblock %}
+{% block crumb %}Security Operations / Model Analytics{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Evaluation &amp; Explainability</span>
+  <h1>Model Analytics</h1>
+  <p>Performance evaluation and explainable AI analysis for the Random Forest classifier
+     used in this project.</p>
+</div>
+
+<div class="metric-row">
+  <div class="metric-pill">Accuracy: <b>{{ metrics.accuracy }}%</b></div>
+  <div class="metric-pill">Precision (Suspicious): <b>{{ (metrics.classification_report["1"].precision * 100) | round(1) }}%</b></div>
+  <div class="metric-pill">Recall (Suspicious): <b>{{ (metrics.classification_report["1"].recall * 100) | round(1) }}%</b></div>
+  <div class="metric-pill">F1-Score (Suspicious): <b>{{ (metrics.classification_report["1"]["f1-score"] * 100) | round(1) }}%</b></div>
+</div>
+
+<div class="grid-2-even">
+  <div class="panel plot-card">
+    <div class="panel-title">Confusion Matrix</div>
+    <img src="{{ url_for('static', filename='plots/confusion_matrix.png') }}" alt="Confusion Matrix">
+  </div>
+  <div class="panel plot-card">
+    <div class="panel-title">Feature Correlation Heatmap</div>
+    <img src="{{ url_for('static', filename='plots/correlation_heatmap.png') }}" alt="Correlation Heatmap">
+  </div>
+  <div class="panel plot-card">
+    <div class="panel-title">Risk Visualization Scatter Plot</div>
+    <img src="{{ url_for('static', filename='plots/risk_scatter.png') }}" alt="Risk Scatter">
+  </div>
+  <div class="panel plot-card">
+    <div class="panel-title">Explainable AI — Feature Importance</div>
+    <img src="{{ url_for('static', filename='plots/feature_importance.png') }}" alt="Feature Importance">
+    <p style="font-size:11.5px;color:var(--muted-2);margin-top:10px;">
+      Computed via permutation importance (model-agnostic explainability, same purpose as SHAP).
+    </p>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Classification Report</div>
+  <table class="data-table">
+    <thead>
+      <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0 — Normal</td>
+        <td>{{ (metrics.classification_report["0"].precision * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["0"].recall * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["0"]["f1-score"] * 100) | round(1) }}%</td>
+        <td>{{ metrics.classification_report["0"].support | int }}</td>
+      </tr>
+      <tr>
+        <td>1 — Suspicious</td>
+        <td>{{ (metrics.classification_report["1"].precision * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["1"].recall * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["1"]["f1-score"] * 100) | round(1) }}%</td>
+        <td>{{ metrics.classification_report["1"].support | int }}</td>
+      </tr>
+      <tr>
+        <td>Weighted Avg</td>
+        <td>{{ (metrics.classification_report["weighted avg"].precision * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["weighted avg"].recall * 100) | round(1) }}%</td>
+        <td>{{ (metrics.classification_report["weighted avg"]["f1-score"] * 100) | round(1) }}%</td>
+        <td>{{ metrics.classification_report["weighted avg"].support | int }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
