@@ -1,58 +1,65 @@
 # EX-AI — Explainable AI-Driven User Behavior Threat Detection
 
-Full rebuild of the BCA final year project: a Random Forest classifier that flags
-suspicious user behavior, wrapped in a real dark-themed cybersecurity web dashboard
-(Flask backend + custom HTML/CSS/JS frontend).
+A cybersecurity dashboard that uses a **Random Forest Classifier** to detect suspicious user behavior in real time, with built-in **Explainable AI** so every prediction can be understood — not just trusted blindly.
 
-## How to run it on your laptop
+Built as a live Flask web app with a dark, SOC-style dashboard — not a Colab notebook.
 
-1. Open a terminal in this folder.
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. (Only needed if you want to regenerate the dataset/model — already done for you,
-   artifacts are included in `data/` and `model/`):
-   ```
-   python generate_dataset.py
-   python train_model.py
-   ```
-4. Start the web app:
-   ```
-   python app.py
-   ```
-5. Open your browser to: **http://localhost:5000**
+## What it does
 
-You'll land on the Dashboard. Use the left sidebar to move between:
+- Analyzes 4 behavioral signals: `login_attempts`, `session_duration`, `pages_accessed`, `failed_logins`
+- Classifies each user session as **Normal** or **Suspicious**
+- Calculates a **deviation score** and assigns a **risk level** (Low / Medium / High)
+- Explains *why* a prediction was made using permutation importance (a model-agnostic Explainable AI technique)
+- Serves everything live through an interactive web dashboard
+
+## Results
+
+| Metric | Score |
+|---|---|
+| Accuracy | 95.0% |
+| Precision (Suspicious) | 100% |
+| Recall (Suspicious) | 77.8% |
+| F1-Score (Suspicious) | 87.5% |
+
+## Tech Stack
+
+**Backend:** Python, Flask
+**ML:** scikit-learn (Random Forest Classifier), pandas, NumPy
+**Explainability:** Permutation Importance
+**Visualization:** Matplotlib, Seaborn
+**Frontend:** HTML, CSS, JavaScript
+
+## Pages
+
 - **Dashboard** — live stats, animated threat feed, risk distribution, top suspicious users
-- **Live Analyzer** — move the sliders, click "Run Threat Analysis", get a real live prediction from the trained model
+- **Live Analyzer** — enter session values, get a real-time prediction from the trained model
 - **Model Analytics** — confusion matrix, correlation heatmap, risk scatter plot, feature importance, classification report
-- **About Project** — objective, pipeline explanation, tech stack (good cheat-sheet for your viva)
+- **About Project** — objective, pipeline explanation, tech stack
 
-## Important things to say honestly if asked
+## Run it locally
 
-- **Dataset**: Built to match the exact schema of the original Kaggle-style "User
-  Behavior" dataset (login_attempts, session_duration, pages_accessed, failed_logins),
-  generated locally with realistic statistical patterns (not a literal Kaggle
-  download) — kept small (400 rows) so it trains instantly on a laptop.
-- **Explainable AI**: Uses **permutation importance** from scikit-learn, not the
-  literal `shap` library (it needed internet to install and wasn't available in
-  the build sandbox). It serves the exact same purpose — shows which behavioral
-  features most influence a prediction — and produces the same style of bar chart.
-  If asked, you can say: "I used permutation importance for feature explainability,
-  which is a standard model-agnostic XAI technique similar in purpose to SHAP."
-- **Accuracy**: ~95% (not artificially 100%) with realistic class overlap, more
-  credible than a suspiciously perfect score.
+```bash
+cd ex-ai
+pip install -r requirements.txt
+python app.py
+```
+Then open **http://localhost:5000**
+
+## Dataset
+
+Modeled on the schema of a standard Kaggle-style User Behavior dataset (`login_attempts`, `session_duration`, `pages_accessed`, `failed_logins`), generated with realistic statistical patterns — normal users show low, consistent activity, while suspicious users show elevated and more erratic behavior.
 
 ## Project structure
 
-```
 ex-ai/
-├── data/user_behaviour_data.csv     # dataset
-├── generate_dataset.py              # dataset generation script
-├── train_model.py                   # full ML pipeline
-├── model/                           # trained model, scaler, metrics (generated)
-├── app.py                           # Flask backend
-├── templates/                       # dashboard, analyzer, analytics, about pages
-└── static/                          # css, js, generated plot images
-```
+├── data/                  # dataset
+├── generate_dataset.py    # dataset generation script
+├── train_model.py         # full ML pipeline
+├── model/                 # trained model, scaler, metrics
+├── app.py                 # Flask backend
+├── templates/              # dashboard, analyzer, analytics, about pages
+├── static/                # css, js, generated plot images
+└── colab/                 # companion Colab notebook
+
+---
+BCA Final Year Project — Department of Computer Applications
